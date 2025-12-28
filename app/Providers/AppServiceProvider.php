@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,5 +22,19 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
+        // Customize the password reset URL for your React SPA
+        ResetPassword::createUrlUsing(function ($notifiable, $token) {
+            // Change this to your actual React route
+            // Example: http://localhost:5173/reset-password?token=abc123&email=user@example.com
+            return 'http://localhost:5173/reset-password?token=' . $token . '&email=' . $notifiable->email;
+        }); 
+
+        Password::defaults(function () {
+            return Password::min(8)
+                ->mixedCase()
+                ->numbers()
+                ->symbols()
+                ->uncompromised();
+        });
     }
 }

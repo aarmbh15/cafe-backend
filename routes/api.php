@@ -64,8 +64,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/cart/add', [CartController::class, 'add']);
     Route::get('/cart', [CartController::class, 'index']);
     Route::post('/cart/update/{id}', [CartController::class, 'updateQuantity']);
-    Route::delete('/cart/remove/{id}', [CartController::class, 'remove']);
-    Route::post('/cart/clear', [CartController::class, 'clear']);
+    Route::delete('/cart/{id}', [CartController::class, 'remove']);
+    Route::post('/cart/{id}', [CartController::class, 'clear']);
 });
 
 // Handle CORS preflight requests for all routes
