@@ -280,7 +280,8 @@ class CartController extends Controller
 
         $request->validate([
             'item_name'    => 'required|string|max:255',
-            'selections'   => 'required|array',
+            // 'selections'   => 'required|array',
+            'selections' => 'present|array',
             'selections.*' => 'array',
             'selections.*.name' => 'required|string',
             'selections.*.price' => 'nullable|numeric',

@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\DB;
 // use App\Http\Controllers\Mail;
 use App\Mail\NewOrderNotification;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
@@ -60,6 +61,7 @@ class OrderController extends Controller
     {
         $user = Auth::user();
 
+        try {
         // Validate incoming data from frontend
         $validated = $request->validate([
             'customer.name'       => 'required|string|max:255',
@@ -67,15 +69,24 @@ class OrderController extends Controller
             'customer.phone'      => 'required|string|max:30',
             'customer.notes'      => 'nullable|string|max:1000',
             'payment_method'      => 'required|in:card,cash',
-            'items'               => 'required|array|min:1',
-            'items.*.id'          => 'required|integer|exists:cart,id,user_id,' . $user->id,
-            'items.*.base'        => 'required|string',
-            'items.*.selections'  => 'required|array',
-            'items.*.totalPrice'  => 'required|numeric|min:0',
-            'items.*.quantity'    => 'required|integer|min:1',
+            // 'items'               => 'required|array|min:1',
+            // 'items.*.id'          => 'required|integer|exists:cart,id,user_id,' . $user->id,
+            // 'items.*.id'          => ['required', 'integer', Rule::exists('cart', 'id')->where('user_id', $user->id)],
+            // 'items.*.id'          => 'required|integer|exists:cart,user_id,' . $user->id,
+            // 'items.*.base'        => 'required|string',
+            // 'items.*.selections'  => 'required|array',
+            // 'items.*.totalPrice'  => 'required|numeric|min:0',
+            // 'items.*.quantity'    => 'required|integer|min:1',
             'total_amount'        => 'required|numeric|min:0',
             'address_id' => 'nullable|integer|exists:user_addresses,id,user_id,' . $user->id,
         ]);
+        } catch (ValidationException $e) {
+    return response()->json([
+        'message' => 'Validation failed',
+        'errors' => $e->errors(),   // ← This shows exactly which field failed
+        'received' => $request->all()
+    ], 422);
+}
 
         // Optional: Double-check total matches cart (security)
         $cartItems = Cart::where('user_id', $user->id)->get();
